@@ -45,13 +45,6 @@ void printBoard(char board[ROWS][COLUMNS])
 	printf(" %c | %c | %c ", board[2][0], board[2][1], board[2][2]);
 	printf("\n");
 }
-/*
-void aiTurn()
-{
-	srand((unsigned int)(time(0)));
-	int pos
-}
-*/
 
 int main()
 {
@@ -83,14 +76,20 @@ int main()
 	printf("AI Picks: %c\n", ai.input);
 	while (!isOver)
 	{
+		srand((unsigned int)(time(0)));
+		ai.aiCol = rand() % 3;
+		ai.aiRow = rand() % 3;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3.\n");
-		player.playerRow = (take_input() - '0');
+		player.playerRow = (take_input() - '0') - 1;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
-		player.playerCol = (take_input() - '0');
-		while ((player.playerRow < 1) || (player.playerRow > 3) && (player.playerCol < 1) || (player.playerCol > 3))
+		player.playerCol = (take_input() - '0') - 1;
+		while ((player.playerRow < 0) || (player.playerRow > 2) && (player.playerCol < 0) || (player.playerCol > 2)) // array consistency.
 		{
-			printf("Invalid Column and Row please try again.\n");
-			player.input = take_input();
+			printf("Invalid row and or column please try again.\n");
+			printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3.\n");
+			player.playerRow = (take_input() - '0') - 1;
+			printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
+			player.playerCol = (take_input() - '0') - 1;
 		}
 
 		for (size_t rowIdx = 0; rowIdx < rowSize; ++rowIdx)
@@ -104,8 +103,6 @@ int main()
 
 			}
 		}
-
-		aiTurn();
 
 		printBoard(board);
 	}
