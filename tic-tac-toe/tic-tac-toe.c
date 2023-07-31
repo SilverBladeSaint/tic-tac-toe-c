@@ -80,7 +80,7 @@ int main()
 		srand((unsigned int)(time(0)));
 		ai.aiCol = rand() % 3;
 		ai.aiRow = rand() % 3;
-		printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3.\n");
+		printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3. kur\n");
 		player.playerRow = (take_input() - '0') - 1;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
 		player.playerCol = (take_input() - '0') - 1;
