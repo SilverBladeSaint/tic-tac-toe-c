@@ -46,12 +46,33 @@ void printBoard(char board[ROWS][COLUMNS])
 	printf("\n");
 }
 
+void checkResults(int board[ROWS][COLUMNS], int currentPlayerTurn)
+{
+	int rowOneResult = board[0][0] == board[0][1] == board[0][2];
+	int rowTwoResult = board[1][0] == board[1][1] == board[1][2];
+	int rowThreeResult = board[2][0] == board[2][1] == board[2][2];
+	int colOneResult = board[0][0] == board[1][0] == board[2][0];
+	int colTwoResult = board[0][1] == board[1][1] == board[1][2];
+	int colThreeResult = board[2][0] == board[2][1] == board[2][2];
+	if (rowOneResult && currentPlayerTurn == 1)
+	{
+		printf("Player One Wins!\n");
+	}
+	else if (rowOneResult && currentPlayerTurn == 2)
+	{
+		printf("Player Two Wins!\n");
+	}
+}
+
+
+
 int main()
 {
 	char board[ROWS][COLUMNS] = { {' ',' ',' '}, {' ',' ', ' '}, {' ',' ',' '} };
 	int takenSlots[ROWS][COLUMNS] = { {0,0,0},{0,0,0}, {0,0,0} };
 	int colSize = sizeof(board[0]) / sizeof(board[0][0]);
 	int rowSize = sizeof(board) / sizeof(board[0]);
+	int currentTurn;
 	player player;
 	ai ai;
 	char isOver = 0;
@@ -75,11 +96,13 @@ int main()
 		break;
 	}
 	printf("AI Picks: %c\n", ai.input);
+	srand((unsigned int)(time(NULL)));
+	enum currentPlayerTurn { Pone = 1, Ptwo };
 	while (!isOver)
 	{
-		srand((unsigned int)(time(0)));
 		ai.aiCol = rand() % 3;
 		ai.aiRow = rand() % 3;
+		currentTurn = Pone;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3.\n");
 		player.playerRow = (take_input() - '0') - 1;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
@@ -92,15 +115,27 @@ int main()
 			printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
 			player.playerCol = (take_input() - '0') - 1;
 		}
-
 		for (size_t rowIdx = 0; rowIdx < rowSize; ++rowIdx)
 		{
 			for (size_t colIdx = 0; colIdx < colSize; ++colIdx)
 			{
+				if ((player.playerRow == ai.aiRow) && (player.playerCol == ai.aiCol))
+				{
+					ai.aiCol = rand() % 3;
+					ai.aiRow = rand() % 3;
+				}
 				if ((player.playerRow == rowIdx) && (player.playerCol == colIdx) && (takenSlots[player.playerRow][player.playerCol] != TRUE))
 				{
 					board[player.playerRow][player.playerCol] = player.input;
-					takenSlots[player.playerRow][player.playerRow] = TRUE;
+					takenSlots[player.playerRow][player.playerCol] = TRUE;
+					checkResults(takenSlots, currentTurn);
+					++currentTurn;
+				}
+				else if ((ai.aiRow == rowIdx) && (ai.aiCol == colIdx) && (takenSlots[ai.aiRow][ai.aiCol] != TRUE))
+				{
+					board[ai.aiRow][ai.aiCol] = ai.input;
+					takenSlots[ai.aiRow][ai.aiCol] = TRUE;
+					checkResults(takenSlots, currentTurn);
 				}
 
 
