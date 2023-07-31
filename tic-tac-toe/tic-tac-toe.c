@@ -7,7 +7,7 @@
 #define TO_UPPER(X) (X-= 32)
 #define ROWS 3
 #define COLUMNS 3
-
+#define TRUE 1
 
 typedef struct
 {
@@ -49,6 +49,7 @@ void printBoard(char board[ROWS][COLUMNS])
 int main()
 {
 	char board[ROWS][COLUMNS] = { {' ',' ',' '}, {' ',' ', ' '}, {' ',' ',' '} };
+	int takenSlots[ROWS][COLUMNS] = { {0,0,0},{0,0,0}, {0,0,0} };
 	int colSize = sizeof(board[0]) / sizeof(board[0][0]);
 	int rowSize = sizeof(board) / sizeof(board[0]);
 	player player;
@@ -96,10 +97,12 @@ int main()
 		{
 			for (size_t colIdx = 0; colIdx < colSize; ++colIdx)
 			{
-				if ((player.playerRow == rowIdx) && (player.playerCol == colIdx))
+				if ((player.playerRow == rowIdx) && (player.playerCol == colIdx) && (takenSlots[player.playerRow][player.playerCol] != TRUE))
 				{
 					board[player.playerRow][player.playerCol] = player.input;
+					takenSlots[player.playerRow][player.playerRow] = TRUE;
 				}
+
 
 			}
 		}
