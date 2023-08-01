@@ -46,24 +46,46 @@ void printBoard(char board[ROWS][COLUMNS])
 	printf("\n");
 }
 
-void checkResults(int board[ROWS][COLUMNS], int currentPlayerTurn)
+void checkResults(char board[ROWS][COLUMNS], int currentPlayer, char *GameState)
 {
-	int rowOneResult = board[0][0] == board[0][1] == board[0][2];
-	int rowTwoResult = board[1][0] == board[1][1] == board[1][2];
-	int rowThreeResult = board[2][0] == board[2][1] == board[2][2];
-	int colOneResult = board[0][0] == board[1][0] == board[2][0];
-	int colTwoResult = board[0][1] == board[1][1] == board[1][2];
-	int colThreeResult = board[2][0] == board[2][1] == board[2][2];
-	if (rowOneResult && currentPlayerTurn == 1)
+
+	if  ((board[0][0] == 'X' && board[0][1] == 'X' && board[0][2] == 'X') ||
+		 (board[0][0] == 'O' && board[0][1] == 'O' && board[0][2] == 'O') ||
+		 (board[1][0] == 'X' && board[1][1] == 'X' && board[1][2] == 'X') ||
+         (board[1][0] == 'O' && board[1][1] == 'O' && board[1][2] == 'O') ||
+		 (board[2][0] == 'X' && board[2][1] == 'X' && board[2][2] == 'X') ||
+		 (board[2][0] == 'O' && board[2][1] == 'O' && board[2][2] == 'O') ||
+		 (board[0][0] == 'X' && board[1][0] == 'X' && board[2][0] == 'X') ||
+		 (board[0][0] == 'O' && board[1][0] == 'O' && board[2][0] == 'O') ||
+		 (board[0][1] == 'X' && board[1][1] == 'X' && board[1][2] == 'X') ||
+		 (board[0][1] == 'O' && board[1][1] == 'O' && board[1][2] == 'O') ||
+		 (board[0][2] == 'X' && board[1][2] == 'X' && board[2][2] == 'X') ||
+		 (board[0][2] == 'O' && board[1][2] == 'O' && board[2][2] == 'O') ||
+		 (board[0][0] == 'X' && board[1][1] == 'X' && board[2][2] == 'X') ||
+		 (board[0][0] == 'O' && board[1][1] == 'O' && board[2][2] == 'O') ||
+		 (board[0][2] == 'X' && board[1][1] == 'X' && board[2][0] == 'X') ||
+		 (board[0][2] == 'O' && board[1][1] == 'O' && board[2][0] == 'O'))
 	{
-		printf("Player One Wins!\n");
-	}
-	else if (rowOneResult && currentPlayerTurn == 2)
-	{
-		printf("Player Two Wins!\n");
+		printf("Player %d Wins!\n", currentPlayer);
+		*GameState = 1;
 	}
 }
+int checkFreeSpaces(char board[ROWS][COLUMNS])
+{
+	int freeSpaces = ROWS * COLUMNS;
 
+	for (int rowIdx = 0; rowIdx < ROWS; rowIdx++)
+	{
+		for (int colIdx = 0; colIdx < COLUMNS; colIdx++)
+		{
+			if (board[rowIdx][colIdx] != ' ')
+			{
+				--freeSpaces;
+			}
+		}
+	}
+	return freeSpaces;
+}
 
 
 int main()
@@ -72,7 +94,7 @@ int main()
 	int takenSlots[ROWS][COLUMNS] = { {0,0,0},{0,0,0}, {0,0,0} };
 	int colSize = sizeof(board[0]) / sizeof(board[0][0]);
 	int rowSize = sizeof(board) / sizeof(board[0]);
-	int currentTurn;
+	int currentTurn = 0;
 	player player;
 	ai ai;
 	char isOver = 0;
@@ -97,12 +119,11 @@ int main()
 	}
 	printf("AI Picks: %c\n", ai.input);
 	srand((unsigned int)(time(NULL)));
-	enum currentPlayerTurn { Pone = 1, Ptwo };
 	while (!isOver)
 	{
 		ai.aiCol = rand() % 3;
 		ai.aiRow = rand() % 3;
-		currentTurn = Pone;
+		currentTurn = 1;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Row between 1 and 3.\n");
 		player.playerRow = (take_input() - '0') - 1;
 		printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
@@ -115,34 +136,37 @@ int main()
 			printf("Please enter the spot where you'd like to place the character\nChoose an Col between 1 and 3.\n");
 			player.playerCol = (take_input() - '0') - 1;
 		}
-		for (size_t rowIdx = 0; rowIdx < rowSize; ++rowIdx)
+		if (checkFreeSpaces(board) > 0)
+
 		{
-			for (size_t colIdx = 0; colIdx < colSize; ++colIdx)
+			if (board[player.playerRow][player.playerCol] != ' ')
 			{
-				if ((player.playerRow == ai.aiRow) && (player.playerCol == ai.aiCol))
+				printf("Invalid Placement. Please try again.\n");
+			}
+			else
+			{
+				board[player.playerRow][player.playerCol] = player.input;
+			}
+			if (board[ai.aiRow][ai.aiCol] == ' ')
+			{
+				board[ai.aiRow][ai.aiCol] = ai.input;
+			}
+			else
+			{
+				while (board[ai.aiRow][ai.aiCol] != ' ')
 				{
 					ai.aiCol = rand() % 3;
 					ai.aiRow = rand() % 3;
 				}
-				if ((player.playerRow == rowIdx) && (player.playerCol == colIdx) && (takenSlots[player.playerRow][player.playerCol] != TRUE))
-				{
-					board[player.playerRow][player.playerCol] = player.input;
-					takenSlots[player.playerRow][player.playerCol] = TRUE;
-					checkResults(takenSlots, currentTurn);
-					++currentTurn;
-				}
-				else if ((ai.aiRow == rowIdx) && (ai.aiCol == colIdx) && (takenSlots[ai.aiRow][ai.aiCol] != TRUE))
-				{
-					board[ai.aiRow][ai.aiCol] = ai.input;
-					takenSlots[ai.aiRow][ai.aiCol] = TRUE;
-					checkResults(takenSlots, currentTurn);
-				}
-
-
 			}
+			printBoard(board);
+			checkResults(board, currentTurn, &isOver);
 		}
-
-		printBoard(board);
+		else
+		{
+			printf("It was a Tie!\n");
+			isOver = 1;
+		}
 	}
 }
 
